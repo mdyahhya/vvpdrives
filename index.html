@@ -321,8 +321,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-
-        // Supabase Configuration
+// Supabase Configuration
 const SUPABASE_URL = 'https://nsnacwwcrszpjmanskti.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbmFjd3djcnN6cGptYW5za3RpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5MTg2MTIsImV4cCI6MjA2ODQ5NDYxMn0.W01JADzAuGFvcAHAN6LPRIxc75J7A9Q76HIxvxkJDn4';
 
@@ -342,6 +341,19 @@ function initializeSupabase() {
     }
 }
 
+// Get Image URL from Storage Path
+function getImageUrl(path) {
+    if (!path) return null;
+    
+    // If it's already a full URL, return as is
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+        return path;
+    }
+    
+    // Otherwise, get public URL from Supabase Storage
+    return supabase.storage.from('company-logos').getPublicUrl(path).data.publicUrl;
+}
+
 // Load Campus Drives
 async function loadCampusDrives() {
     const container = document.getElementById('drivesContainer');
@@ -359,15 +371,19 @@ async function loadCampusDrives() {
             return;
         }
 
-        container.innerHTML = data.map(drive => `
-            <div class="drive-card" onclick="viewDriveDetails('${drive.id}')">
-                ${drive.company_logo ? `<img src="${drive.company_logo}" alt="${drive.company_name}">` : ''}
-                <h3>${drive.company_name}</h3>
-                ${drive.job_post ? `<p><strong>Position:</strong> ${drive.job_post}</p>` : ''}
-                ${drive.students_selected ? `<p><strong>Students Selected:</strong> ${drive.students_selected}</p>` : ''}
-                ${drive.organized_date ? `<p><strong>Date:</strong> ${new Date(drive.organized_date).toLocaleDateString()}</p>` : ''}
-            </div>
-        `).join('');
+        container.innerHTML = data.map(drive => {
+            const logoUrl = getImageUrl(drive.company_logo);
+            
+            return `
+                <div class="drive-card" onclick="viewDriveDetails('${drive.id}')">
+                    ${logoUrl ? `<img src="${logoUrl}" alt="${drive.company_name}">` : ''}
+                    <h3>${drive.company_name}</h3>
+                    ${drive.job_post ? `<p><strong>Position:</strong> ${drive.job_post}</p>` : ''}
+                    ${drive.students_selected ? `<p><strong>Students Selected:</strong> ${drive.students_selected}</p>` : ''}
+                    ${drive.organized_date ? `<p><strong>Date:</strong> ${new Date(drive.organized_date).toLocaleDateString()}</p>` : ''}
+                </div>
+            `;
+        }).join('');
 
     } catch (error) {
         console.error('Error loading drives:', error);
@@ -396,7 +412,8 @@ async function viewDriveDetails(driveId) {
         let detailsHTML = '<div class="details-container">';
         
         if (data.company_logo) {
-            detailsHTML += `<img src="${data.company_logo}" alt="${data.company_name}" class="company-logo-large">`;
+            const logoUrl = getImageUrl(data.company_logo);
+            detailsHTML += `<img src="${logoUrl}" alt="${data.company_name}" class="company-logo-large">`;
         }
         
         detailsHTML += `<h2>${data.company_name}</h2>`;
@@ -422,6 +439,7 @@ async function viewDriveDetails(driveId) {
             data.students_data.forEach(student => {
                 detailsHTML += '<div class="student-card">';
                 if (student.image) {
+                    // Student images are already stored as full URLs
                     detailsHTML += `<img src="${student.image}" alt="${student.name}">`;
                 }
                 detailsHTML += `<h4>${student.name}</h4>`;
