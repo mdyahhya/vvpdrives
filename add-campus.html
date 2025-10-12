@@ -416,6 +416,84 @@
     }
 }
 
+
+/* Add these styles to your existing add-campus.css */
+
+/* Student Entry Styles */
+.student-entry {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #f9f9f9;
+    position: relative;
+}
+
+.student-entry h4 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    grid-column: 1 / -1;
+}
+
+.student-image-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.student-image-preview {
+    max-width: 150px;
+    max-height: 150px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.student-image-preview.hidden {
+    display: none;
+}
+
+.student-image-preview img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+.student-crop-btn {
+    max-width: 150px;
+}
+
+.btn-remove-student {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-remove-student:hover {
+    background-color: #b71c1c;
+}
+
+/* Mobile responsive for student entries */
+@media (max-width: 768px) {
+    .student-entry {
+        padding: 1rem;
+    }
+
+    .student-image-preview,
+    .student-crop-btn {
+        max-width: 100%;
+    }
+}
+
         </style>
 </head>
 <body>
@@ -507,17 +585,15 @@
                     <input type="number" id="studentsSelected" min="0">
                 </div>
 
-                <div class="form-group">
-                    <label>Selected Students Details</label>
-                    <div id="studentsContainer">
-                        <div class="student-entry">
-                            <input type="text" placeholder="Student Name" class="student-name">
-                            <input type="url" placeholder="Image URL (optional)" class="student-image">
-                            <input type="text" placeholder="Package (optional)" class="student-package">
-                        </div>
-                    </div>
-                    <button type="button" onclick="addStudentField()" class="btn-secondary">+ Add Another Student</button>
-                </div>
+                <!-- Replace the Students section in your form with this -->
+<div class="form-group">
+    <label>Selected Students Details</label>
+    <div id="studentsContainer">
+        <!-- Students will be added here dynamically -->
+    </div>
+    <button type="button" onclick="addStudentField()" class="btn-secondary">+ Add Student</button>
+</div>
+
 
                 <div class="form-group">
                     <label>Date of Organizing</label>
@@ -568,7 +644,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
 
-       // Supabase Configuration
+      // Supabase Configuration
 const SUPABASE_URL = 'https://nsnacwwcrszpjmanskti.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbmFjd3djcnN6cGptYW5za3RpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5MTg2MTIsImV4cCI6MjA2ODQ5NDYxMn0.W01JADzAuGFvcAHAN6LPRIxc75J7A9Q76HIxvxkJDn4';
 
@@ -577,6 +653,9 @@ let isAuthenticated = false;
 let selectedImageFile = null;
 let cropper = null;
 let croppedBlob = null;
+let currentCropType = 'company'; // 'company' or 'student'
+let currentStudentIndex = null;
+let studentImages = {}; // Store student images by index
 
 // Initialize Supabase
 function initializeSupabase() {
@@ -611,7 +690,6 @@ async function verifyCode() {
             return;
         }
         
-        // Code is valid
         isAuthenticated = true;
         sessionStorage.setItem('tpo_authenticated', 'true');
         document.getElementById('codeSection').classList.add('hidden');
@@ -693,14 +771,12 @@ async function editDrive(driveId) {
 
         if (error) throw error;
 
-        // Show form
         document.getElementById('managementSection').classList.add('hidden');
         document.getElementById('formSection').classList.remove('hidden');
         document.getElementById('formTitle').textContent = 'Edit Campus Drive';
         document.getElementById('submitBtn').textContent = 'Update Campus Drive';
         document.getElementById('editDriveId').value = driveId;
 
-        // Populate form
         document.getElementById('companyName').value = data.company_name || '';
         document.getElementById('aboutCompany').value = data.about_company || '';
         document.getElementById('companyLocation').value = data.company_location || '';
@@ -708,33 +784,24 @@ async function editDrive(driveId) {
         document.getElementById('studentsSelected').value = data.students_selected || '';
         document.getElementById('organizedDate').value = data.organized_date || '';
 
-        // Show existing logo if available
         if (data.company_logo) {
             const logoUrl = supabase.storage.from('company-logos').getPublicUrl(data.company_logo).data.publicUrl;
             document.getElementById('previewImage').src = logoUrl;
             document.getElementById('imagePreview').classList.remove('hidden');
         }
 
-        // Populate students
         const studentsContainer = document.getElementById('studentsContainer');
         studentsContainer.innerHTML = '';
+        studentImages = {};
+        
         if (data.students_data && data.students_data.length > 0) {
-            data.students_data.forEach(student => {
-                const entry = document.createElement('div');
-                entry.className = 'student-entry';
-                entry.innerHTML = `
-                    <input type="text" placeholder="Student Name" class="student-name" value="${student.name || ''}">
-                    <input type="url" placeholder="Image URL (optional)" class="student-image" value="${student.image || ''}">
-                    <input type="text" placeholder="Package (optional)" class="student-package" value="${student.package || ''}">
-                    <button type="button" onclick="this.parentElement.remove()" class="btn-secondary">Remove</button>
-                `;
-                studentsContainer.appendChild(entry);
+            data.students_data.forEach((student, index) => {
+                addStudentField(student, index);
             });
         } else {
             addStudentField();
         }
 
-        // Populate custom fields
         const customContainer = document.getElementById('customFieldsContainer');
         customContainer.innerHTML = '';
         if (data.custom_fields && data.custom_fields.length > 0) {
@@ -765,14 +832,12 @@ async function deleteDrive(driveId, logoPath) {
     }
 
     try {
-        // Delete logo from storage if exists
         if (logoPath) {
             await supabase.storage
                 .from('company-logos')
                 .remove([logoPath]);
         }
 
-        // Delete drive record
         const { error } = await supabase
             .from('campus_drives')
             .delete()
@@ -789,7 +854,7 @@ async function deleteDrive(driveId, logoPath) {
     }
 }
 
-// Handle Image Selection
+// Handle Company Logo Selection
 function handleImageSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -800,20 +865,59 @@ function handleImageSelect(event) {
     }
 
     selectedImageFile = file;
-    const reader = new FileReader();
+    currentCropType = 'company';
     
+    const reader = new FileReader();
     reader.onload = function(e) {
         document.getElementById('previewImage').src = e.target.result;
         document.getElementById('imagePreview').classList.remove('hidden');
         document.getElementById('cropButton').classList.remove('hidden');
     };
-    
     reader.readAsDataURL(file);
 }
 
-// Open Crop Modal
-function openCropModal() {
-    if (!selectedImageFile) return;
+// Handle Student Image Selection
+function handleStudentImageSelect(event, studentIndex) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const previewId = `studentPreview-${studentIndex}`;
+        const cropBtnId = `studentCropBtn-${studentIndex}`;
+        
+        document.getElementById(previewId).src = e.target.result;
+        document.getElementById(`studentPreviewContainer-${studentIndex}`).classList.remove('hidden');
+        document.getElementById(cropBtnId).classList.remove('hidden');
+        
+        // Store the file temporarily
+        if (!studentImages[studentIndex]) {
+            studentImages[studentIndex] = {};
+        }
+        studentImages[studentIndex].originalFile = file;
+    };
+    reader.readAsDataURL(file);
+}
+
+// Open Crop Modal (for both company and student)
+function openCropModal(type = 'company', studentIndex = null) {
+    let imageFile;
+    
+    if (type === 'company') {
+        imageFile = selectedImageFile;
+        currentCropType = 'company';
+    } else {
+        imageFile = studentImages[studentIndex]?.originalFile;
+        currentCropType = 'student';
+        currentStudentIndex = studentIndex;
+    }
+    
+    if (!imageFile) return;
 
     const modal = document.getElementById('cropModal');
     const cropImage = document.getElementById('cropImage');
@@ -823,14 +927,14 @@ function openCropModal() {
         cropImage.src = e.target.result;
         modal.classList.remove('hidden');
         
-        // Destroy existing cropper if any
         if (cropper) {
             cropper.destroy();
         }
         
-        // Initialize Cropper.js
+        const aspectRatio = type === 'company' ? 16 / 9 : 1; // Square for students
+        
         cropper = new Cropper(cropImage, {
-            aspectRatio: 16 / 9,
+            aspectRatio: aspectRatio,
             viewMode: 1,
             autoCropArea: 1,
             responsive: true,
@@ -838,7 +942,7 @@ function openCropModal() {
         });
     };
     
-    reader.readAsDataURL(selectedImageFile);
+    reader.readAsDataURL(imageFile);
 }
 
 // Close Crop Modal
@@ -854,17 +958,19 @@ function closeCropModal() {
 function applyCrop() {
     if (!cropper) return;
 
-    cropper.getCroppedCanvas({
-        width: 800,
-        height: 450,
-        imageSmoothingEnabled: true,
-        imageSmoothingQuality: 'high',
-    }).toBlob((blob) => {
-        croppedBlob = blob;
-        
-        // Update preview
-        const url = URL.createObjectURL(blob);
-        document.getElementById('previewImage').src = url;
+    const size = currentCropType === 'company' ? { width: 800, height: 450 } : { width: 400, height: 400 };
+    
+    cropper.getCroppedCanvas(size).toBlob((blob) => {
+        if (currentCropType === 'company') {
+            croppedBlob = blob;
+            const url = URL.createObjectURL(blob);
+            document.getElementById('previewImage').src = url;
+        } else {
+            // Store cropped student image
+            const url = URL.createObjectURL(blob);
+            document.getElementById(`studentPreview-${currentStudentIndex}`).src = url;
+            studentImages[currentStudentIndex].croppedBlob = blob;
+        }
         
         closeCropModal();
         alert('Image cropped successfully!');
@@ -872,25 +978,23 @@ function applyCrop() {
 }
 
 // Upload Image to Supabase Storage
-async function uploadImage(driveId) {
-    const imageToUpload = croppedBlob || selectedImageFile;
-    if (!imageToUpload) return null;
+async function uploadImage(driveId, file, path) {
+    if (!file) return null;
 
     try {
         const fileExt = 'jpg';
-        const fileName = `${driveId}-${Date.now()}.${fileExt}`;
-        const filePath = `logos/${fileName}`;
+        const fileName = `${path}/${driveId}-${Date.now()}.${fileExt}`;
 
         const { data, error } = await supabase.storage
             .from('company-logos')
-            .upload(filePath, imageToUpload, {
+            .upload(fileName, file, {
                 contentType: 'image/jpeg',
                 upsert: false
             });
 
         if (error) throw error;
 
-        return filePath;
+        return fileName;
 
     } catch (error) {
         console.error('Error uploading image:', error);
@@ -899,17 +1003,51 @@ async function uploadImage(driveId) {
 }
 
 // Add Student Field
-function addStudentField() {
+function addStudentField(studentData = null, index = null) {
     const container = document.getElementById('studentsContainer');
+    const studentIndex = index !== null ? index : Date.now();
+    
     const newEntry = document.createElement('div');
     newEntry.className = 'student-entry';
+    newEntry.dataset.studentIndex = studentIndex;
     newEntry.innerHTML = `
-        <input type="text" placeholder="Student Name" class="student-name">
-        <input type="url" placeholder="Image URL (optional)" class="student-image">
-        <input type="text" placeholder="Package (optional)" class="student-package">
-        <button type="button" onclick="this.parentElement.remove()" class="btn-secondary">Remove</button>
+        <h4>Student ${container.children.length + 1}</h4>
+        <button type="button" class="btn-remove-student" onclick="removeStudentField(this)">Remove</button>
+        
+        <input type="text" placeholder="Student Name *" class="student-name" value="${studentData?.name || ''}" required>
+        
+        <div class="student-image-upload">
+            <label>Student Photo</label>
+            <input type="file" accept="image/*" onchange="handleStudentImageSelect(event, ${studentIndex})" class="student-image-file">
+            <div id="studentPreviewContainer-${studentIndex}" class="student-image-preview ${studentData?.image ? '' : 'hidden'}">
+                <img id="studentPreview-${studentIndex}" src="${studentData?.image || ''}" alt="Preview">
+            </div>
+            <button type="button" id="studentCropBtn-${studentIndex}" onclick="openCropModal('student', ${studentIndex})" class="btn-secondary student-crop-btn ${studentData?.image ? '' : 'hidden'}">Crop Photo</button>
+        </div>
+        
+        <input type="text" placeholder="Package (e.g., 5 LPA)" class="student-package" value="${studentData?.package || ''}">
     `;
+    
     container.appendChild(newEntry);
+    
+    // If editing with existing image URL, mark it
+    if (studentData?.image && studentData.image.startsWith('http')) {
+        studentImages[studentIndex] = { existingUrl: studentData.image };
+    }
+}
+
+// Remove Student Field
+function removeStudentField(button) {
+    const entry = button.closest('.student-entry');
+    const studentIndex = entry.dataset.studentIndex;
+    delete studentImages[studentIndex];
+    entry.remove();
+    
+    // Renumber students
+    const students = document.querySelectorAll('.student-entry');
+    students.forEach((student, index) => {
+        student.querySelector('h4').textContent = `Student ${index + 1}`;
+    });
 }
 
 // Add Custom Field
@@ -933,14 +1071,12 @@ function resetForm() {
     document.getElementById('cropButton').classList.add('hidden');
     selectedImageFile = null;
     croppedBlob = null;
+    studentImages = {};
     
-    document.getElementById('studentsContainer').innerHTML = `
-        <div class="student-entry">
-            <input type="text" placeholder="Student Name" class="student-name">
-            <input type="url" placeholder="Image URL (optional)" class="student-image">
-            <input type="text" placeholder="Package (optional)" class="student-package">
-        </div>
-    `;
+    const studentsContainer = document.getElementById('studentsContainer');
+    studentsContainer.innerHTML = '';
+    addStudentField();
+    
     document.getElementById('customFieldsContainer').innerHTML = `
         <div class="custom-field-entry">
             <input type="text" placeholder="Field Name" class="field-name">
@@ -966,39 +1102,12 @@ document.getElementById('campusDriveForm')?.addEventListener('submit', async (e)
     
     const editDriveId = document.getElementById('editDriveId').value;
     const isEdit = !!editDriveId;
-    
-    // Collect students data
-    const studentsData = [];
-    document.querySelectorAll('.student-entry').forEach(entry => {
-        const name = entry.querySelector('.student-name').value.trim();
-        if (name) {
-            studentsData.push({
-                name,
-                image: entry.querySelector('.student-image').value.trim(),
-                package: entry.querySelector('.student-package').value.trim()
-            });
-        }
-    });
-    
-    // Collect custom fields
-    const customFields = [];
-    document.querySelectorAll('.custom-field-entry').forEach(entry => {
-        const fieldName = entry.querySelector('.field-name').value.trim();
-        const fieldValue = entry.querySelector('.field-value').value.trim();
-        if (fieldName && fieldValue) {
-            customFields.push({
-                field_name: fieldName,
-                field_value: fieldValue
-            });
-        }
-    });
+    const driveId = isEdit ? editDriveId : crypto.randomUUID();
     
     try {
+        // Upload company logo if new
         let logoPath = null;
-        
-        // Upload new image if selected
         if (selectedImageFile || croppedBlob) {
-            // If editing, delete old logo
             if (isEdit) {
                 const { data: oldDrive } = await supabase
                     .from('campus_drives')
@@ -1006,18 +1115,14 @@ document.getElementById('campusDriveForm')?.addEventListener('submit', async (e)
                     .eq('id', editDriveId)
                     .single();
                 
-                if (oldDrive && oldDrive.company_logo) {
-                    await supabase.storage
-                        .from('company-logos')
-                        .remove([oldDrive.company_logo]);
+                if (oldDrive?.company_logo) {
+                    await supabase.storage.from('company-logos').remove([oldDrive.company_logo]);
                 }
             }
             
-            // Generate temp ID for new drives
-            const driveId = isEdit ? editDriveId : crypto.randomUUID();
-            logoPath = await uploadImage(driveId);
+            const imageToUpload = croppedBlob || selectedImageFile;
+            logoPath = await uploadImage(driveId, imageToUpload, 'logos');
         } else if (isEdit) {
-            // Keep existing logo path
             const { data: oldDrive } = await supabase
                 .from('campus_drives')
                 .select('company_logo')
@@ -1026,7 +1131,49 @@ document.getElementById('campusDriveForm')?.addEventListener('submit', async (e)
             logoPath = oldDrive?.company_logo || null;
         }
         
-        // Prepare data object
+        // Collect students data with image uploads
+        const studentsData = [];
+        const studentEntries = document.querySelectorAll('.student-entry');
+        
+        for (const entry of studentEntries) {
+            const studentIndex = entry.dataset.studentIndex;
+            const name = entry.querySelector('.student-name').value.trim();
+            
+            if (name) {
+                let imagePath = null;
+                
+                // Check if new image was uploaded
+                if (studentImages[studentIndex]?.croppedBlob || studentImages[studentIndex]?.originalFile) {
+                    const imageToUpload = studentImages[studentIndex].croppedBlob || studentImages[studentIndex].originalFile;
+                    imagePath = await uploadImage(driveId, imageToUpload, 'students');
+                    // Convert to public URL
+                    imagePath = supabase.storage.from('company-logos').getPublicUrl(imagePath).data.publicUrl;
+                } else if (studentImages[studentIndex]?.existingUrl) {
+                    // Keep existing URL
+                    imagePath = studentImages[studentIndex].existingUrl;
+                }
+                
+                studentsData.push({
+                    name,
+                    image: imagePath,
+                    package: entry.querySelector('.student-package').value.trim()
+                });
+            }
+        }
+        
+        // Collect custom fields
+        const customFields = [];
+        document.querySelectorAll('.custom-field-entry').forEach(entry => {
+            const fieldName = entry.querySelector('.field-name').value.trim();
+            const fieldValue = entry.querySelector('.field-value').value.trim();
+            if (fieldName && fieldValue) {
+                customFields.push({
+                    field_name: fieldName,
+                    field_value: fieldValue
+                });
+            }
+        });
+        
         const driveData = {
             company_logo: logoPath,
             company_name: document.getElementById('companyName').value.trim(),
@@ -1040,7 +1187,6 @@ document.getElementById('campusDriveForm')?.addEventListener('submit', async (e)
         };
         
         if (isEdit) {
-            // Update existing drive
             const { error } = await supabase
                 .from('campus_drives')
                 .update(driveData)
@@ -1049,10 +1195,9 @@ document.getElementById('campusDriveForm')?.addEventListener('submit', async (e)
             if (error) throw error;
             alert('Campus drive updated successfully!');
         } else {
-            // Insert new drive
             const { error } = await supabase
                 .from('campus_drives')
-                .insert([driveData]);
+                .insert([{ ...driveData, id: driveId }]);
             
             if (error) throw error;
             alert('Campus drive added successfully!');
@@ -1084,7 +1229,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
-
     </script>
 </body>
 </html>
