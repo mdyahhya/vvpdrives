@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Continental Base Pvt. Ltd.</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        /* ================================
+   ABOUT US PAGE STYLES - about-us.html
+   ================================ */
+
+/* About Container */
+.about-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 20px;
+}
+
+/* Section Containers */
+.company-section,
+.visit-section,
+.founder-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+/* Company Section */
+.company-section {
+    text-align: center;
+}
+
+.company-logo {
+    max-width: 200px;
+    margin-bottom: 1rem;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.company-section h1 {
+    color: var(--primary-color);
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.company-section p {
+    text-align: justify;
+    line-height: 1.8;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+/* Visit Section */
+.visit-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 3px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+}
+
+.social-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 1rem;
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 1rem;
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.social-btn:hover {
+    background: var(--secondary-color);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+
+.social-btn .icon {
+    font-size: 1.3rem;
+}
+
+/* Founder Section */
+.founder-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 3px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+}
+
+.tweet-box {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.5rem;
+    background: #f9f9f9;
+}
+
+.tweet-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.founder-dp {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 2px solid var(--primary-color);
+}
+
+.founder-dp:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow);
+}
+
+.tweet-info h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.2rem;
+    font-size: 1.2rem;
+}
+
+.username {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.tweet-content {
+    margin: 1rem 0;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #333;
+}
+
+.tweet-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.contact-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition);
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+.contact-link:hover {
+    background: #f0f0f0;
+}
+
+.contact-link .icon {
+    font-size: 1.2rem;
+}
+
+/* Image Zoom Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+    cursor: pointer;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+}
+
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: var(--transition);
+    background: rgba(0, 0, 0, 0.5);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-modal:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: rotate(90deg);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .about-container {
+        padding: 1rem 15px;
+    }
+
+    .company-section h1 {
+        font-size: 1.7rem;
+    }
+
+    .company-section,
+    .visit-section,
+    .founder-section {
+        padding: 1.5rem;
+    }
+
+    .social-links {
+        grid-template-columns: 1fr;
+    }
+
+    .tweet-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .tweet-info {
+        width: 100%;
+    }
+
+    .close-modal {
+        top: 10px;
+        right: 10px;
+        font-size: 1.5rem;
+        width: 35px;
+        height: 35px;
+    }
+}
+
+@media (max-width: 480px) {
+    .company-logo {
+        max-width: 150px;
+    }
+
+    .company-section h1 {
+        font-size: 1.5rem;
+    }
+
+    .founder-dp {
+        width: 50px;
+        height: 50px;
+    }
+
+    .tweet-content {
+        font-size: 1rem;
+    }
+}
+
+        </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">VVPIET Placements</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="add-campus.html">Add Campus Drive</a></li>
+                <li><a href="vvpiet.html">VVPIET</a></li>
+                <li><a href="about-us.html" class="active">About Us</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="about-container">
+        <section class="company-section">
+            <img src="" alt="Continental Base Logo" class="company-logo" id="companyLogo">
+            <h1>Continental Base Pvt. Ltd.</h1>
+            <p>This software was built by Continental Base Pvt. Ltd., a leading technology solutions provider specializing in web and mobile application development. We are committed to creating innovative, user-friendly solutions that empower organizations to achieve their goals.</p>
+            <p>Our team of experienced developers and designers work with cutting-edge technologies to deliver robust, scalable applications tailored to meet specific business needs. From enterprise solutions to educational platforms, we bring ideas to life with precision and excellence.</p>
+        </section>
+
+        <section class="visit-section">
+            <h2>Visit Company Page</h2>
+            <div class="social-links">
+                <a href="" target="_blank" class="social-btn">
+                    <span class="icon">🌐</span>
+                    <span>Website</span>
+                </a>
+                <a href="" target="_blank" class="social-btn">
+                    <span class="icon">📷</span>
+                    <span>Instagram</span>
+                </a>
+                <a href="tel:" class="social-btn">
+                    <span class="icon">📞</span>
+                    <span>Contact</span>
+                </a>
+                <a href="mailto:" class="social-btn">
+                    <span class="icon">✉️</span>
+                    <span>Email</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="founder-section">
+            <h2>From the Founder</h2>
+            <div class="tweet-box">
+                <div class="tweet-header">
+                    <img src="" alt="Founder DP" class="founder-dp" id="founderDp" onclick="zoomImage(this)">
+                    <div class="tweet-info">
+                        <h3 id="founderName">[Founder Name]</h3>
+                        <p class="username">Founder @Continental Base</p>
+                    </div>
+                </div>
+                <div class="tweet-content">
+                    <p>"Building innovative solutions that make a difference. Continental Base is dedicated to transforming ideas into powerful digital experiences. Let's shape the future together!"</p>
+                </div>
+                <div class="tweet-contact">
+                    <a href="mailto:" id="founderEmail" class="contact-link">
+                        <span class="icon">✉️</span>
+                        <span>[Email Address]</span>
+                    </a>
+                    <a href="tel:" id="founderPhone" class="contact-link">
+                        <span class="icon">📞</span>
+                        <span>[Contact Number]</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Image Zoom Modal -->
+    <div id="imageModal" class="modal hidden" onclick="closeZoom()">
+        <span class="close-modal">✕</span>
+        <img src="" alt="Zoomed Image" id="zoomedImage">
+    </div>
+
+    <script>
+        // Hamburger menu
+        document.querySelector('.hamburger').addEventListener('click', () => {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        });
+
+        // Image zoom
+        function zoomImage(img) {
+            const modal = document.getElementById('imageModal');
+            const zoomedImg = document.getElementById('zoomedImage');
+            modal.classList.remove('hidden');
+            zoomedImg.src = img.src;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeZoom() {
+            document.getElementById('imageModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</body>
+</html>

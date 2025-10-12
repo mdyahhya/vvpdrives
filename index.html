@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VVPIET - Training & Placement</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#011C40">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <style>
+        /* ================================
+   HOME PAGE STYLES - index.html
+   ================================ */
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 3rem 20px;
+    text-align: center;
+}
+
+.hero-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Drives Grid */
+.drives-section {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 20px;
+}
+
+.drives-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.drive-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.drive-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-5px);
+}
+
+.drive-card img {
+    width: 100%;
+    max-width: 150px;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+.drive-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.drive-card p {
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+}
+
+/* Drive Details View */
+.drive-details {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 20px;
+}
+
+.drive-details.hidden {
+    display: none;
+}
+
+.back-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    transition: var(--transition);
+}
+
+.back-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.details-container {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.details-container img.company-logo-large {
+    max-width: 200px;
+    margin-bottom: 1.5rem;
+}
+
+.details-container h2 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.detail-item {
+    margin: 1.5rem 0;
+}
+
+.detail-item h3 {
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.students-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 1rem;
+}
+
+.student-card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.student-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+}
+
+/* Install Notification */
+.install-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    padding: 1.5rem;
+    max-width: 350px;
+    z-index: 2000;
+    animation: slideUp 0.3s ease;
+}
+
+.install-notification.hidden {
+    display: none;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.notification-content h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.install-steps {
+    background: #f5f5f5;
+    padding: 1rem;
+    border-radius: 5px;
+    margin: 1rem 0;
+}
+
+.install-steps ol {
+    margin-left: 1.5rem;
+}
+
+.notification-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.btn-install {
+    flex: 1;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-later {
+    flex: 1;
+    background-color: #f0f0f0;
+    border: none;
+    padding: 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 1.8rem;
+    }
+
+    .drives-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .install-notification {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .drives-grid {
+        gap: 15px;
+    }
+
+    .drive-card {
+        padding: 1rem;
+    }
+}
+
+        </style>
+</head>
+<body>
+    <!-- Install Notification -->
+    <div id="installNotification" class="install-notification hidden">
+        <div class="notification-content">
+            <button class="close-btn" onclick="closeInstallNotification()">✕</button>
+            <h3>Install VVPIET Placement App</h3>
+            <p>Experience faster access with our new App technology!</p>
+            <div class="install-steps">
+                <p><strong>How to Install:</strong></p>
+                <ol>
+                    <li>Click the 3 dots (⋮) in Chrome</li>
+                    <li>Select "Add to Home screen"</li>
+                    <li>Tap "Install"</li>
+                </ol>
+            </div>
+            <div class="notification-buttons">
+                <button id="installBtn" class="btn-install">Install Now</button>
+                <button onclick="laterInstall()" class="btn-later">Later</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">VVPIET Placements</div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="add-campus.html">Add Campus Drive</a></li>
+                <li><a href="vvpiet.html">VVPIET</a></li>
+                <li><a href="about-us.html">About Us</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="mainContent">
+        <section class="hero-section">
+            <h1>Campus Placement Drives at VVPIET</h1>
+            <p>Explore our recent placement opportunities and success stories</p>
+        </section>
+
+        <section class="drives-section">
+            <div id="drivesContainer" class="drives-grid">
+                <div class="loading">Loading campus drives...</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Drive Details View (Hidden by default) -->
+    <div id="driveDetails" class="drive-details hidden">
+        <button class="back-btn" onclick="goBack()">← Back</button>
+        <div id="detailsContent"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+
+        // Supabase Configuration
+const SUPABASE_URL = 'https://nsnacwwcrszpjmanskti.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbmFjd3djcnN6cGptYW5za3RpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5MTg2MTIsImV4cCI6MjA2ODQ5NDYxMn0.W01JADzAuGFvcAHAN6LPRIxc75J7A9Q76HIxvxkJDn4';
+
+let supabase;
+let deferredPrompt;
+let currentDriveId = null;
+
+// Initialize Supabase
+function initializeSupabase() {
+    try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("Supabase initialized successfully");
+        return true;
+    } catch (error) {
+        console.error("Error initializing Supabase:", error);
+        return false;
+    }
+}
+
+// Load Campus Drives
+async function loadCampusDrives() {
+    const container = document.getElementById('drivesContainer');
+    
+    try {
+        const { data, error } = await supabase
+            .from('campus_drives')
+            .select('*')
+            .order('organized_date', { ascending: false });
+
+        if (error) throw error;
+
+        if (data.length === 0) {
+            container.innerHTML = '<p class="loading">No campus drives found. Add your first drive!</p>';
+            return;
+        }
+
+        container.innerHTML = data.map(drive => `
+            <div class="drive-card" onclick="viewDriveDetails('${drive.id}')">
+                ${drive.company_logo ? `<img src="${drive.company_logo}" alt="${drive.company_name}">` : ''}
+                <h3>${drive.company_name}</h3>
+                ${drive.job_post ? `<p><strong>Position:</strong> ${drive.job_post}</p>` : ''}
+                ${drive.students_selected ? `<p><strong>Students Selected:</strong> ${drive.students_selected}</p>` : ''}
+                ${drive.organized_date ? `<p><strong>Date:</strong> ${new Date(drive.organized_date).toLocaleDateString()}</p>` : ''}
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error('Error loading drives:', error);
+        container.innerHTML = '<p class="loading">Error loading campus drives. Please try again.</p>';
+    }
+}
+
+// View Drive Details
+async function viewDriveDetails(driveId) {
+    currentDriveId = driveId;
+    
+    try {
+        const { data, error } = await supabase
+            .from('campus_drives')
+            .select('*')
+            .eq('id', driveId)
+            .single();
+
+        if (error) throw error;
+
+        // Hide main content, show details
+        document.getElementById('mainContent').style.display = 'none';
+        document.getElementById('driveDetails').classList.remove('hidden');
+
+        // Build details HTML
+        let detailsHTML = '<div class="details-container">';
+        
+        if (data.company_logo) {
+            detailsHTML += `<img src="${data.company_logo}" alt="${data.company_name}" class="company-logo-large">`;
+        }
+        
+        detailsHTML += `<h2>${data.company_name}</h2>`;
+        
+        if (data.about_company) {
+            detailsHTML += `<div class="detail-item"><h3>About Company</h3><p>${data.about_company}</p></div>`;
+        }
+        
+        if (data.company_location) {
+            detailsHTML += `<div class="detail-item"><h3>Location</h3><p>${data.company_location}</p></div>`;
+        }
+        
+        if (data.job_post) {
+            detailsHTML += `<div class="detail-item"><h3>Job Position</h3><p>${data.job_post}</p></div>`;
+        }
+        
+        if (data.students_selected) {
+            detailsHTML += `<div class="detail-item"><h3>Students Selected</h3><p>${data.students_selected}</p></div>`;
+        }
+        
+        if (data.students_data && data.students_data.length > 0) {
+            detailsHTML += '<div class="detail-item"><h3>Selected Students</h3><div class="students-list">';
+            data.students_data.forEach(student => {
+                detailsHTML += '<div class="student-card">';
+                if (student.image) {
+                    detailsHTML += `<img src="${student.image}" alt="${student.name}">`;
+                }
+                detailsHTML += `<h4>${student.name}</h4>`;
+                if (student.package) {
+                    detailsHTML += `<p><strong>Package:</strong> ${student.package}</p>`;
+                }
+                detailsHTML += '</div>';
+            });
+            detailsHTML += '</div></div>';
+        }
+        
+        if (data.organized_date) {
+            detailsHTML += `<div class="detail-item"><h3>Date of Drive</h3><p>${new Date(data.organized_date).toLocaleDateString()}</p></div>`;
+        }
+        
+        if (data.custom_fields && data.custom_fields.length > 0) {
+            data.custom_fields.forEach(field => {
+                detailsHTML += `<div class="detail-item"><h3>${field.field_name}</h3><p>${field.field_value}</p></div>`;
+            });
+        }
+        
+        detailsHTML += '</div>';
+        
+        document.getElementById('detailsContent').innerHTML = detailsHTML;
+        
+        // Update browser history
+        history.pushState({ driveId }, '', `#drive-${driveId}`);
+        
+    } catch (error) {
+        console.error('Error loading drive details:', error);
+        alert('Error loading drive details');
+    }
+}
+
+// Go Back Function
+function goBack() {
+    document.getElementById('driveDetails').classList.add('hidden');
+    document.getElementById('mainContent').style.display = 'block';
+    currentDriveId = null;
+    history.pushState({}, '', 'index.html');
+}
+
+// Handle browser back button
+window.addEventListener('popstate', (event) => {
+    if (currentDriveId) {
+        goBack();
+    }
+});
+
+// PWA Install Notification
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Check if user already dismissed
+    const installDismissed = localStorage.getItem('installDismissed');
+    const dismissDate = localStorage.getItem('installDismissDate');
+    
+    if (installDismissed === 'later' && dismissDate) {
+        const daysSince = (Date.now() - parseInt(dismissDate)) / (1000 * 60 * 60 * 24);
+        if (daysSince < 1) return; // Show again after 1 day
+    }
+    
+    if (installDismissed !== 'never') {
+        document.getElementById('installNotification').classList.remove('hidden');
+    }
+});
+
+document.getElementById('installBtn')?.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        
+        if (outcome === 'accepted') {
+            localStorage.setItem('installDismissed', 'installed');
+        }
+        
+        deferredPrompt = null;
+        document.getElementById('installNotification').classList.add('hidden');
+    }
+});
+
+function laterInstall() {
+    localStorage.setItem('installDismissed', 'later');
+    localStorage.setItem('installDismissDate', Date.now().toString());
+    document.getElementById('installNotification').classList.add('hidden');
+}
+
+function closeInstallNotification() {
+    localStorage.setItem('installDismissed', 'never');
+    document.getElementById('installNotification').classList.add('hidden');
+}
+
+// Hamburger Menu
+document.querySelector('.hamburger')?.addEventListener('click', () => {
+    document.querySelector('.nav-menu').classList.toggle('active');
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    if (initializeSupabase()) {
+        loadCampusDrives();
+    }
+});
+
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('Service Worker registered'))
+        .catch(err => console.error('Service Worker registration failed:', err));
+}
+
+    </script>
+</body>
+</html>
