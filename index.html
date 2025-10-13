@@ -257,6 +257,19 @@
     }
 }
 
+
+/* Add this to your existing home.css */
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 20px;
+    }
+    
+    .hero-section h1 {
+        font-size: 1.5rem;
+    }
+}
+
         </style>
 </head>
 <body>
@@ -265,14 +278,9 @@
         <div class="notification-content">
             <button class="close-btn" onclick="closeInstallNotification()">✕</button>
             <h3>Install VVPIET Placement App</h3>
-            <p>Experience faster access with our new App technology!</p>
-            <div class="install-steps">
-                <p><strong>How to Install:</strong></p>
-                <ol>
-                    <li>Click the 3 dots (⋮) in Chrome</li>
-                    <li>Select "Add to Home screen"</li>
-                    <li>Tap "Install"</li>
-                </ol>
+            <p id="installMessage">Experience faster access with our new App technology!</p>
+            <div id="installInstructions" class="install-steps">
+                <!-- Instructions will be populated by JavaScript -->
             </div>
             <div class="notification-buttons">
                 <button id="installBtn" class="btn-install">Install Now</button>
@@ -281,8 +289,8 @@
         </div>
     </div>
 
-    <!-- Navigation Bar -->
-    <nav class="navbar">
+    <!-- Top Navigation Bar (Desktop Only) -->
+    <nav class="navbar desktop-only">
         <div class="nav-container">
             <div class="nav-logo">VVPIET Placements</div>
             <ul class="nav-menu">
@@ -291,13 +299,13 @@
                 <li><a href="vvpiet.html">VVPIET</a></li>
                 <li><a href="about-us.html">About Us</a></li>
             </ul>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
         </div>
     </nav>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header mobile-only">
+        <h1>VVPIET Placements</h1>
+    </div>
 
     <!-- Main Content -->
     <main id="mainContent">
@@ -318,6 +326,44 @@
         <button class="back-btn" onclick="goBack()">← Back</button>
         <div id="detailsContent"></div>
     </div>
+
+    <!-- Bottom Navigation Bar (Mobile Only) -->
+    <nav class="bottom-nav mobile-only">
+        <a href="index.html" class="nav-item active">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span>Home</span>
+        </a>
+        <a href="add-campus.html" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+            <span>Add Drive</span>
+        </a>
+        <a href="vvpiet.html" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+            </svg>
+            <span>VVPIET</span>
+        </a>
+        <a href="about-us.html" class="nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span>About</span>
+        </a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -345,12 +391,10 @@ function initializeSupabase() {
 function getImageUrl(path) {
     if (!path) return null;
     
-    // If it's already a full URL, return as is
     if (path.startsWith('http://') || path.startsWith('https://')) {
         return path;
     }
     
-    // Otherwise, get public URL from Supabase Storage
     return supabase.storage.from('company-logos').getPublicUrl(path).data.publicUrl;
 }
 
@@ -404,11 +448,9 @@ async function viewDriveDetails(driveId) {
 
         if (error) throw error;
 
-        // Hide main content, show details
         document.getElementById('mainContent').style.display = 'none';
         document.getElementById('driveDetails').classList.remove('hidden');
 
-        // Build details HTML
         let detailsHTML = '<div class="details-container">';
         
         if (data.company_logo) {
@@ -439,7 +481,6 @@ async function viewDriveDetails(driveId) {
             data.students_data.forEach(student => {
                 detailsHTML += '<div class="student-card">';
                 if (student.image) {
-                    // Student images are already stored as full URLs
                     detailsHTML += `<img src="${student.image}" alt="${student.name}">`;
                 }
                 detailsHTML += `<h4>${student.name}</h4>`;
@@ -452,7 +493,7 @@ async function viewDriveDetails(driveId) {
         }
         
         if (data.organized_date) {
-            detailsHTML += `<div class="detail-item"><h3>Date of Drive</h3><p>${new Date(data.organized_date).toLocaleDateString()}</p></div>`;
+            detailsHTML += `<div class="detail-item"><h3>Date of Drive</h3><p>${new Date(data.organized_date).toLocaleDateString()}</p>`;
         }
         
         if (data.custom_fields && data.custom_fields.length > 0) {
@@ -465,7 +506,6 @@ async function viewDriveDetails(driveId) {
         
         document.getElementById('detailsContent').innerHTML = detailsHTML;
         
-        // Update browser history
         history.pushState({ driveId }, '', `#drive-${driveId}`);
         
     } catch (error) {
@@ -489,29 +529,149 @@ window.addEventListener('popstate', (event) => {
     }
 });
 
-// PWA Install Notification
+// Detect Device and Browser
+function getDeviceInfo() {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    
+    // iOS detection
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+    const isIPad = /iPad/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    // Android detection
+    const isAndroid = /android/i.test(userAgent);
+    
+    // Windows detection
+    const isWindows = /Windows/.test(userAgent);
+    
+    // Chrome detection
+    const isChrome = /Chrome/.test(userAgent) && /Google Inc/.test(navigator.vendor);
+    
+    // Safari detection
+    const isSafari = /Safari/.test(userAgent) && /Apple Computer/.test(navigator.vendor);
+    
+    // Edge detection
+    const isEdge = /Edg/.test(userAgent);
+    
+    return {
+        isIOS: isIOS || isIPad,
+        isAndroid,
+        isWindows,
+        isChrome,
+        isSafari,
+        isEdge,
+        isMobile: isIOS || isIPad || isAndroid
+    };
+}
+
+// Show Install Instructions based on Device
+function showInstallInstructions(device) {
+    const instructionsDiv = document.getElementById('installInstructions');
+    const installBtn = document.getElementById('installBtn');
+    const installMessage = document.getElementById('installMessage');
+    
+    let instructions = '';
+    
+    if (device.isIOS) {
+        // iOS - Safari only
+        installMessage.textContent = 'Add this app to your home screen for a better experience!';
+        instructions = `
+            <p><strong>How to Install on iOS:</strong></p>
+            <ol>
+                <li>Tap the Share button <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 5l-1.42 1.42-1.59-1.59V16h-1.98V4.83L9.42 6.42 8 5l4-4 4 4zm4 5v11c0 1.1-.9 2-2 2H6c-1.11 0-2-.9-2-2V10c0-1.11.89-2 2-2h3v2H6v11h12V10h-3V8h3c1.1 0 2 .89 2 2z"/></svg> at the bottom</li>
+                <li>Scroll and tap "Add to Home Screen"</li>
+                <li>Tap "Add" in the top right</li>
+            </ol>
+        `;
+        installBtn.style.display = 'none'; // Hide install button for iOS
+        
+    } else if (device.isAndroid) {
+        installMessage.textContent = 'Install this app for faster access and offline use!';
+        instructions = `
+            <p><strong>How to Install on Android:</strong></p>
+            <ol>
+                <li>Tap "Install Now" button below, OR</li>
+                <li>Tap the menu (⋮) in Chrome</li>
+                <li>Select "Add to Home screen" or "Install app"</li>
+                <li>Tap "Install"</li>
+            </ol>
+        `;
+        installBtn.style.display = 'block';
+        
+    } else if (device.isWindows) {
+        installMessage.textContent = 'Install this app on your desktop for quick access!';
+        instructions = `
+            <p><strong>How to Install on Windows:</strong></p>
+            <ol>
+                <li>Click "Install Now" button below, OR</li>
+                <li>Click the install icon (⊕) in the address bar</li>
+                <li>Click "Install"</li>
+            </ol>
+        `;
+        installBtn.style.display = 'block';
+        
+    } else {
+        // Default for other devices
+        installMessage.textContent = 'Install this app for a better experience!';
+        instructions = `
+            <p><strong>How to Install:</strong></p>
+            <ol>
+                <li>Click "Install Now" button below</li>
+                <li>Or look for the install icon in your browser</li>
+            </ol>
+        `;
+        installBtn.style.display = 'block';
+    }
+    
+    instructionsDiv.innerHTML = instructions;
+}
+
+// PWA Install Notification - Enhanced for all platforms
+function showInstallNotification() {
+    const installDismissed = localStorage.getItem('installDismissed');
+    const dismissDate = localStorage.getItem('installDismissDate');
+    
+    // Check if user dismissed with "Later" within last day
+    if (installDismissed === 'later' && dismissDate) {
+        const daysSince = (Date.now() - parseInt(dismissDate)) / (1000 * 60 * 60 * 24);
+        if (daysSince < 1) return;
+    }
+    
+    // Don't show if user permanently dismissed
+    if (installDismissed === 'never') return;
+    
+    // Don't show if already installed (for Android/Desktop)
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        return;
+    }
+    
+    const device = getDeviceInfo();
+    showInstallInstructions(device);
+    
+    // Show notification after 2 seconds
+    setTimeout(() => {
+        document.getElementById('installNotification').classList.remove('hidden');
+    }, 2000);
+}
+
+// beforeinstallprompt event (Android/Chrome/Edge)
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
     
-    // Check if user already dismissed
-    const installDismissed = localStorage.getItem('installDismissed');
-    const dismissDate = localStorage.getItem('installDismissDate');
-    
-    if (installDismissed === 'later' && dismissDate) {
-        const daysSince = (Date.now() - parseInt(dismissDate)) / (1000 * 60 * 60 * 24);
-        if (daysSince < 1) return; // Show again after 1 day
-    }
-    
-    if (installDismissed !== 'never') {
-        document.getElementById('installNotification').classList.remove('hidden');
-    }
+    console.log('beforeinstallprompt fired');
+    showInstallNotification();
 });
 
+// Install Button Click Handler
 document.getElementById('installBtn')?.addEventListener('click', async () => {
+    const device = getDeviceInfo();
+    
     if (deferredPrompt) {
+        // For Android/Chrome/Windows
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
+        
+        console.log(`User choice: ${outcome}`);
         
         if (outcome === 'accepted') {
             localStorage.setItem('installDismissed', 'installed');
@@ -519,6 +679,12 @@ document.getElementById('installBtn')?.addEventListener('click', async () => {
         
         deferredPrompt = null;
         document.getElementById('installNotification').classList.add('hidden');
+    } else if (device.isIOS) {
+        // For iOS - just close the notification as instructions are shown
+        alert('Please follow the instructions above to install the app');
+    } else {
+        // Fallback - show instructions
+        alert('Please use your browser\'s menu to install this app');
     }
 });
 
@@ -529,13 +695,17 @@ function laterInstall() {
 }
 
 function closeInstallNotification() {
-    localStorage.setItem('installDismissed', 'never');
-    document.getElementById('installNotification').classList.add('hidden');
+    if (confirm('Are you sure you don\'t want to install? You can always install later from your browser menu.')) {
+        localStorage.setItem('installDismissed', 'never');
+        document.getElementById('installNotification').classList.add('hidden');
+    }
 }
 
-// Hamburger Menu
-document.querySelector('.hamburger')?.addEventListener('click', () => {
-    document.querySelector('.nav-menu').classList.toggle('active');
+// Check if app was installed
+window.addEventListener('appinstalled', () => {
+    console.log('PWA was installed');
+    localStorage.setItem('installDismissed', 'installed');
+    document.getElementById('installNotification').classList.add('hidden');
 });
 
 // Initialize on page load
@@ -543,6 +713,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (initializeSupabase()) {
         loadCampusDrives();
     }
+    
+    // Show install notification for all platforms
+    // Wait a bit for page to load
+    setTimeout(() => {
+        showInstallNotification();
+    }, 1000);
 });
 
 // Register Service Worker
@@ -551,7 +727,6 @@ if ('serviceWorker' in navigator) {
         .then(reg => console.log('Service Worker registered'))
         .catch(err => console.error('Service Worker registration failed:', err));
 }
-
     </script>
 </body>
 </html>
